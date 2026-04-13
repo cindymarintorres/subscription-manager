@@ -13,6 +13,16 @@ Puedes usar ChatGPT, Copilot, Claude o cualquier herramienta que uses normalment
 
 ---
 
+## Entrega
+
+1. Haz **fork** de este repositorio a tu cuenta de GitHub
+2. Trabaja en tu fork
+3. Cuando termines, compartenos el link a tu repositorio
+
+No hagas PR al repo original.
+
+---
+
 ## Como arrancar
 
 Necesitas Node 18+ y npm. Abre dos terminales:
