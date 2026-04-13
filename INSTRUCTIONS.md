@@ -7,6 +7,10 @@ Imagina que te incorporas a un equipo que esta construyendo una app para gestion
 **Tiempo:** 2-3 horas  
 **Stack:** Angular 19 · Node.js/Express · SQLite
 
+### Sobre el uso de IA
+
+Puedes usar ChatGPT, Copilot, Claude o cualquier herramienta que uses normalmente en tu dia a dia. No hay restriccion. Lo que si: despues de entregar la prueba hay una **entrevista tecnica** donde vamos a revisar tu codigo juntos, te vamos a pedir que expliques tus decisiones y que hagas modificaciones en vivo. Asegurate de entender todo lo que entregues.
+
 ---
 
 ## Como arrancar
