@@ -1,61 +1,39 @@
-# Subscription Manager — Prueba Tecnica Frontend
+# Subscription Manager
 
-Aplicacion web para gestionar suscripciones digitales (Netflix, NordVPN, Claude AI, Disney+).
+App para gestionar suscripciones digitales (Netflix, NordVPN, Claude AI, Disney+, etc).
 
-## Stack Tecnologico
+Este repo es una prueba tecnica para la posicion de **Frontend Developer**. Lee `INSTRUCTIONS.md` para ver que hay que hacer.
 
-- **Frontend:** Angular 19 (standalone components, signals, reactive forms)
-- **Backend:** Node.js + Express + SQLite (better-sqlite3)
-- **Estilos:** SCSS con design system "Financial Curator"
+## Levantar el proyecto
 
-## Inicio Rapido
+Necesitas Node.js 18+ y npm.
 
-### Requisitos
-- Node.js 18+
-- npm
+Abre dos terminales:
 
-### Backend
 ```bash
+# Terminal 1 - API
 cd backend
 npm install
-npm run dev    # http://localhost:3000
+npm run dev
 ```
 
-### Frontend
 ```bash
+# Terminal 2 - App
 cd frontend
 npm install
-npx ng serve   # http://localhost:4200
+npx ng serve
 ```
 
-## Estructura del Proyecto
+- API: http://localhost:3000
+- App: http://localhost:4200
+
+## Que hay dentro
 
 ```
-subscription-manager/
-├── backend/              # API REST (Express + SQLite)
-│   └── src/
-│       ├── server.js     # Entry point
-│       ├── database.js   # SQLite + seed data
-│       └── routes/       # Endpoints CRUD
-├── frontend/             # Angular 19
-│   └── src/
-│       ├── app/
-│       │   ├── core/     # Modelos y servicios
-│       │   ├── layout/   # Shell responsive
-│       │   ├── features/ # Paginas
-│       │   └── shared/   # Componentes reutilizables
-│       └── styles/       # Design system SCSS
-├── screenshots/          # Referencia visual
-└── INSTRUCTIONS.md       # Enunciado de la prueba
+├── backend/        → API en Express + SQLite. Ya esta completa, no hay que tocarla.
+├── frontend/       → Angular 19. Tiene un dashboard funcional y componentes por implementar.
+├── screenshots/    → Capturas del diseño de referencia.
+└── INSTRUCTIONS.md → El enunciado con las tareas.
 ```
 
-## API Endpoints
-
-| Metodo | Ruta | Descripcion |
-|--------|------|-------------|
-| GET | /api/subscriptions | Listar suscripciones |
-| GET | /api/subscriptions/:id | Obtener por ID |
-| POST | /api/subscriptions | Crear |
-| PUT | /api/subscriptions/:id | Actualizar |
-| DELETE | /api/subscriptions/:id | Eliminar |
-| GET | /api/subscriptions/stats/summary | Estadisticas |
+Cada carpeta tiene su propio README con mas detalle.

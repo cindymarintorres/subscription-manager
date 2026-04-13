@@ -1,59 +1,67 @@
-# Frontend
+# Frontend — Subscription Manager
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.24.
+App en Angular 19 con standalone components, signals y la nueva sintaxis de control flow (`@if`, `@for`).
 
-## Development server
-
-To start a local development server, run:
+## Levantar
 
 ```bash
-ng serve
+npm install
+npx ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Abre http://localhost:4200. Necesitas que el backend este corriendo en el puerto 3000.
 
-## Code scaffolding
+## Que ya esta hecho
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Dashboard** completo con tarjetas de suscripcion, resumen mensual y widget de renovaciones.
+- **Layout responsive** con sidebar en desktop y bottom nav en mobile (breakpoint: 768px).
+- **Design system** con tokens SCSS, tipografia (Manrope + Inter) y mixins listos para usar.
+- **Servicio** con `getAll()`, `getStats()` y `getById()` funcionando.
+- **Modelo** con interfaces TypeScript tipadas.
 
-```bash
-ng generate component component-name
+Revisa el dashboard para entender los patrones. Es la referencia de lo que esperamos.
+
+## Que falta por hacer
+
+Los archivos con TODO estan en su sitio, solo hay que implementarlos:
+
+- `src/app/core/services/subscription.service.ts` → Faltan `create()`, `update()`, `delete()`
+- `src/app/features/subscription-form/subscription-form.component.ts` → Formulario de crear/editar
+- `src/app/shared/components/confirm-dialog/confirm-dialog.component.ts` → Dialogo de confirmacion
+- `src/app/features/subscription-detail/subscription-detail.component.ts` → Vista de detalle (bonus)
+- `src/app/app.routes.ts` → Las rutas nuevas estan comentadas, hay que descomentarlas
+
+## Estructura
+
+```
+src/
+├── app/
+│   ├── core/
+│   │   ├── models/subscription.model.ts    → Interfaces y constantes
+│   │   └── services/subscription.service.ts → Servicio HTTP (parcial)
+│   ├── layout/                              → Shell de la app (sidebar + bottom nav)
+│   ├── features/
+│   │   ├── dashboard/                       → Ya implementado - REFERENCIA
+│   │   ├── subscription-form/               → Por implementar
+│   │   └── subscription-detail/             → Por implementar (bonus)
+│   ├── shared/components/                   → confirm-dialog por implementar
+│   ├── app.routes.ts                        → Rutas (tiene TODOs)
+│   └── app.config.ts                        → Providers (HttpClient, Router)
+├── styles/
+│   ├── _variables.scss  → Colores, spacing, radii, breakpoints
+│   ├── _typography.scss → Clases de tipografia (Manrope + Inter)
+│   └── _mixins.scss     → card, card-with-strip, btn-primary, btn-secondary, input-field, glass, responsive
+└── environments/
+    └── environment.ts   → apiUrl: http://localhost:3000
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Design system rapido
 
-```bash
-ng generate --help
-```
+Los estilos siguen el sistema "Financial Curator". Lo basico:
 
-## Building
+- **Sin bordes** para separar secciones. Usa cambios de fondo (tonal layering).
+- **Cards** con esquinas redondeadas (`$radius-lg`) y una franja de 4px a la izquierda con el color de marca.
+- **Botones principales** con forma de pastilla y gradiente azul.
+- **Colores:** azul primario `#0056D2`, superficies claras `#f8f9fa`, texto `#191c1d`.
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Mira `_variables.scss` y `_mixins.scss` antes de escribir CSS. Casi todo lo que necesitas ya esta ahi.

@@ -1,38 +1,31 @@
 # CLAUDE.md
 
-## Project Overview
+## Que es esto
 
-Subscription Manager — prueba tecnica para Frontend Developer Junior-Mid. Proyecto parcialmente implementado con Angular 19 + Express/SQLite. El candidato completa features sobre un dashboard funcional.
+Prueba tecnica para Frontend Developer (junior-mid). App de gestion de suscripciones con Angular 19 y un backend en Express/SQLite.
 
-## Commands
+## Comandos
 
 ```bash
-# Backend
-cd backend && npm run dev          # Puerto 3000
-
-# Frontend
-cd frontend && npx ng serve        # Puerto 4200
-cd frontend && npx ng build        # Build de produccion
+cd backend && npm run dev       # API en puerto 3000
+cd frontend && npx ng serve     # App en puerto 4200
+cd frontend && npx ng build     # Build de produccion
 ```
 
 No hay tests ni linting configurados.
 
-## Architecture
+## Arquitectura
 
-### Backend (packages: backend/)
-- Express + better-sqlite3
-- CRUD endpoints en /api/subscriptions
-- Snake_case en DB, camelCase en JSON (via SQL AS aliases)
+**Backend** (`backend/`): Express + better-sqlite3. CRUD completo en `/api/subscriptions`. La DB usa snake_case, la API responde camelCase.
 
-### Frontend (packages: frontend/)
-- Angular 19 — standalone components, signals, new control flow (@if, @for)
-- SCSS con design system "Financial Curator" (tokens en src/styles/)
-- Layout responsive: sidebar (desktop >768px), bottom nav (mobile)
-- Dashboard implementado como referencia
-- Stubs con TODOs para candidato: subscription-form, subscription-detail, confirm-dialog
+**Frontend** (`frontend/`): Angular 19 con standalone components, signals y nueva sintaxis (@if, @for). SCSS con design system "Financial Curator" (tokens en `src/styles/`). Layout responsive: sidebar en desktop, bottom nav en mobile.
 
-### Key Files
-- `frontend/src/app/features/dashboard/` — Referencia de calidad
-- `frontend/src/app/core/services/subscription.service.ts` — Servicio parcial
-- `frontend/src/styles/_variables.scss` — Design tokens
+El dashboard esta completo y sirve de referencia. Los componentes con TODO son los que implementa el candidato.
+
+## Archivos importantes
+
+- `frontend/src/app/features/dashboard/` — Referencia de patrones Angular 19
+- `frontend/src/app/core/services/subscription.service.ts` — Servicio parcial (3 metodos TODO)
+- `frontend/src/styles/_variables.scss` — Tokens del design system
+- `frontend/src/styles/_mixins.scss` — Mixins reutilizables
 - `INSTRUCTIONS.md` — Enunciado de la prueba
