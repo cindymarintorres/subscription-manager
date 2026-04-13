@@ -1,11 +1,10 @@
 import { Component, input, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { Subscription } from '../../../../core/models/subscription.model';
 
 @Component({
   selector: 'app-upcoming-renewals',
   standalone: true,
-  imports: [DatePipe],
+  imports: [],
   templateUrl: './upcoming-renewals.component.html',
   styleUrl: './upcoming-renewals.component.scss'
 })
