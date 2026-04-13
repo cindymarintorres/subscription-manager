@@ -4,3 +4,7 @@ dist/
 *.db
 .DS_Store
 .env
+.claude/
+.playwright-mcp/
+docs/EVALUACION-INTERNA.md
+docs/superpowers/
