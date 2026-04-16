@@ -139,7 +139,8 @@
   }
 }
 
-.btn-action {
+.btn-cancel {
+  @include btn-secondary;
   flex: 1;
 
   @media (min-width: 500px) {
@@ -148,13 +149,15 @@
   }
 }
 
-.btn-cancel {
-  @include btn-secondary;
-}
-
 .btn-submit {
   @include btn-primary;
   gap: $spacing-xs;
+  flex: 1;
+
+  @media (min-width: 500px) {
+    flex: 0 0 auto;
+    min-width: 160px;
+  }
 }
 
 .price-hint {

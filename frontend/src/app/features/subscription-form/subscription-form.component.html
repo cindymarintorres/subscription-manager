@@ -45,8 +45,8 @@
           <span class="field-error">El precio es obligatorio.</span>
         } @else if (hasError('price', 'min')) {
           <span class="field-error">El precio debe ser mayor a 0.</span>
-        } @else if (form.get('billingCycle')?.value === 'annual' && form.get('price')?.value > 0) {
-          <span class="price-hint">Proyección anual: {{ form.get('price')!.value * 12 | number:'1.2-2' }} USD</span>
+        } @else if (form.get('billingCycle')?.value === 'annual' && (form.get('price')?.value || 0) > 0) {
+          <span class="price-hint">Proyección anual: {{ (form.get('price')!.value * 12) | number:'1.2-2' }} USD</span>
         }
       </div>
 
