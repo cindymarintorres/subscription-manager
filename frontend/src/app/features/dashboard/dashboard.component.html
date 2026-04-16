@@ -13,7 +13,11 @@
         <p class="body-md">Suscripciones activas gestionadas</p>
       </div>
       <div class="portfolio-filters">
-        <button class="filter-chip">Categoría</button>
+        <button
+          class="filter-chip"
+          [class.active]="categoryFilter() !== 'all'"
+          (click)="cycleCategoryFilter()"
+        >{{ getCategoryLabel() }}</button>
         <button
           class="filter-chip"
           [class.active]="priceSort() !== 'none'"

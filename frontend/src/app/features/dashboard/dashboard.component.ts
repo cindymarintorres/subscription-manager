@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SubscriptionService } from '../../core/services/subscription.service';
-import { Subscription, SubscriptionStats } from '../../core/models/subscription.model';
+import { Subscription, SubscriptionStats, CATEGORIES } from '../../core/models/subscription.model';
 import { MonthlySummaryComponent } from './components/monthly-summary/monthly-summary.component';
 import { UpcomingRenewalsComponent } from './components/upcoming-renewals/upcoming-renewals.component';
 import { SubscriptionCardComponent } from './components/subscription-card/subscription-card.component';
@@ -23,17 +23,27 @@ export class DashboardComponent implements OnInit {
   private subscriptionService = inject(SubscriptionService);
   private router = inject(Router);
 
+  readonly categories = CATEGORIES;
+
   subscriptions = signal<Subscription[]>([]);
   stats = signal<SubscriptionStats>({ totalMonthly: 0, count: 0, annualProjection: 0 });
   isLoading = signal(true);
   priceSort = signal<PriceSort>('none');
+  categoryFilter = signal<string>('all');
 
   activeSubscriptions = computed(() => {
-    const active = this.subscriptions().filter(s => s.status === 'active');
+    const category = this.categoryFilter();
     const sort = this.priceSort();
-    if (sort === 'asc') return [...active].sort((a, b) => a.price - b.price);
-    if (sort === 'desc') return [...active].sort((a, b) => b.price - a.price);
-    return active;
+
+    let result = this.subscriptions().filter(s => s.status === 'active');
+
+    if (category !== 'all') {
+      result = result.filter(s => s.category === category);
+    }
+
+    if (sort === 'asc') return [...result].sort((a, b) => a.price - b.price);
+    if (sort === 'desc') return [...result].sort((a, b) => b.price - a.price);
+    return result;
   });
 
   ngOnInit(): void {
@@ -65,6 +75,18 @@ export class DashboardComponent implements OnInit {
     if (sort === 'asc') return 'Precio ↑';
     if (sort === 'desc') return 'Precio ↓';
     return 'Precio';
+  }
+
+  cycleCategoryFilter(): void {
+    const allValues = ['all', ...this.categories.map(c => c.value)];
+    const currentIndex = allValues.indexOf(this.categoryFilter());
+    this.categoryFilter.set(allValues[(currentIndex + 1) % allValues.length]);
+  }
+
+  getCategoryLabel(): string {
+    const current = this.categoryFilter();
+    if (current === 'all') return 'Categoría';
+    return this.categories.find(c => c.value === current)?.label ?? 'Categoría';
   }
 
   navigateToNew(): void {
