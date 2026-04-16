@@ -73,15 +73,54 @@
         <p class="body-md">Cargando...</p>
       </div>
     } @else {
-      <div class="list-placeholder">
-        <span class="material-icons-outlined placeholder-icon">format_list_bulleted</span>
-        <p class="body-lg">La lista de suscripciones va aqui</p>
-        <p class="body-md">
-          Implementa la lista usando <code>filteredSubscriptions()</code> como fuente de datos.
-          Consulta los screenshots en <code>/screenshots/</code> para referencia.
-        </p>
-      </div>
+      @if (filteredSubscriptions().length === 0) {
+        <app-empty-state
+          title="Sin resultados"
+          message="No hay suscripciones que coincidan con tu búsqueda o filtro."
+          actionLabel="Nueva suscripción"
+          actionRoute="/subscriptions/new"
+        />
+      } @else {
+        @for (sub of filteredSubscriptions(); track sub.id) {
+          <div class="subscription-row" (click)="navigateToDetail(sub.id)">
+            <div class="row-brand">
+              <div class="brand-dot" [style.background]="sub.color"></div>
+              <div class="row-info">
+                <span class="title-md">{{ sub.name }}</span>
+                <span class="category-badge">{{ getCategoryLabel(sub.category) }}</span>
+              </div>
+            </div>
+            <div class="row-meta">
+              <span class="row-price">
+                {{ sub.price | currency:'USD':'symbol':'1.2-2' }}
+                <span class="row-cycle">/{{ sub.billingCycle === 'monthly' ? 'mes' : 'año' }}</span>
+              </span>
+              <span class="label-md row-date">
+                <span class="material-icons-outlined date-icon">event</span>
+                {{ sub.nextPaymentDate | date:'d MMM y' }}
+              </span>
+            </div>
+            <div class="row-actions" (click)="$event.stopPropagation()">
+              <button class="action-btn" (click)="navigateToEdit(sub.id)" title="Editar">
+                <span class="material-icons-outlined">edit</span>
+              </button>
+              <button class="action-btn danger" (click)="handleDelete(sub.id)" title="Eliminar">
+                <span class="material-icons-outlined">delete_outline</span>
+              </button>
+            </div>
+          </div>
+        }
+      }
     }
   </section>
+
+  @if (confirmDeleteId() !== null) {
+    <app-confirm-dialog
+      title="Eliminar suscripcion"
+      message="¿Estás seguro de que quieres eliminar esta suscripción? Esta accion no se puede deshacer."
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()"
+    />
+  }
 
 </div>

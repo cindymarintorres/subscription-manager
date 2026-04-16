@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { Subscription, SubscriptionStats, CATEGORIES } from '../../core/models/subscription.model';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-subscriptions',
   standalone: true,
-  imports: [FormsModule, CurrencyPipe, DatePipe],
+  imports: [FormsModule, CurrencyPipe, DatePipe, ConfirmDialogComponent, EmptyStateComponent],
   templateUrl: './subscriptions.component.html',
   styleUrl: './subscriptions.component.scss'
 })
@@ -21,6 +23,7 @@ export class SubscriptionsComponent implements OnInit {
   isLoading = signal(true);
   searchQuery = signal('');
   activeFilter = signal<string>('all');
+  confirmDeleteId = signal<number | null>(null);
 
   categories = CATEGORIES;
 
@@ -32,7 +35,13 @@ export class SubscriptionsComponent implements OnInit {
   });
 
   filteredSubscriptions = computed(() => {
-    return this.subscriptions();
+    const query = this.searchQuery().toLowerCase().trim();
+    const filter = this.activeFilter();
+    return this.subscriptions().filter(s => {
+      const matchesSearch = !query || s.name.toLowerCase().includes(query);
+      const matchesCategory = filter === 'all' || s.category === filter;
+      return matchesSearch && matchesCategory;
+    });
   });
 
   ngOnInit(): void {
@@ -61,5 +70,37 @@ export class SubscriptionsComponent implements OnInit {
 
   navigateToAdd(): void {
     this.router.navigate(['/subscriptions/new']);
+  }
+
+  navigateToEdit(id: number): void {
+    this.router.navigate(['/subscriptions', id, 'edit']);
+  }
+
+  navigateToDetail(id: number): void {
+    this.router.navigate(['/subscriptions', id]);
+  }
+
+  handleDelete(id: number): void {
+    this.confirmDeleteId.set(id);
+  }
+
+  onConfirmDelete(): void {
+    const id = this.confirmDeleteId();
+    if (id === null) return;
+    this.subscriptionService.delete(id).subscribe({
+      next: () => {
+        this.confirmDeleteId.set(null);
+        this.loadData();
+      },
+      error: (err) => console.error('Error eliminando suscripcion:', err),
+    });
+  }
+
+  onCancelDelete(): void {
+    this.confirmDeleteId.set(null);
+  }
+
+  getCategoryLabel(category: string): string {
+    return this.categories.find(c => c.value === category)?.label ?? category;
   }
 }

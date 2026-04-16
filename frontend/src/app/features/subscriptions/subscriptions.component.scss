@@ -147,28 +147,133 @@
   to { transform: rotate(360deg); }
 }
 
-.list-placeholder {
+.subscription-row {
   @include card;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: $spacing-3xl;
-  gap: $spacing-sm;
-  text-align: center;
-  border: 2px dashed $outline-variant;
-  background: transparent;
-  box-shadow: none;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-md;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
 
-  .placeholder-icon {
-    font-size: 48px;
-    color: $outline;
+  &:hover {
+    box-shadow: $shadow-elevated;
+    transform: translateY(-1px);
   }
 
-  code {
-    background: $surface-container;
-    padding: 2px 6px;
-    border-radius: $radius-sm;
-    font-size: 0.8125rem;
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+}
+
+.row-brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+  min-width: 0;
+}
+
+.brand-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  .title-md {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.category-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  color: $on-surface-variant;
+  letter-spacing: 0.02em;
+}
+
+.row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+
+  @include mobile {
+    align-items: flex-start;
+  }
+}
+
+.row-price {
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $on-surface;
+}
+
+.row-cycle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: $on-surface-variant;
+}
+
+.row-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: $on-surface-variant;
+}
+
+.date-icon {
+  font-size: 14px !important;
+}
+
+.row-actions {
+  display: flex;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+
+  @include mobile {
+    align-self: flex-end;
+  }
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: $radius-full;
+  background: $surface-container;
+  color: $on-surface-variant;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  .material-icons-outlined { font-size: 18px; }
+
+  &:hover {
+    background: $secondary-fixed-dim;
+    color: $on-secondary-fixed-variant;
+  }
+
+  &.danger:hover {
+    background: $error-container;
+    color: $error;
   }
 }
