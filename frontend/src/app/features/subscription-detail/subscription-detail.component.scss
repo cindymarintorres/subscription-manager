@@ -1,0 +1,133 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-3xl;
+  gap: $spacing-md;
+
+  .loading-spinner {
+    font-size: 32px;
+    color: $primary-container;
+    animation: spin 1.5s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.detail-page {
+  max-width: 720px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-2xl;
+  flex-wrap: wrap;
+
+  @include mobile {
+    flex-wrap: wrap;
+  }
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $surface-container;
+  border: none;
+  border-radius: $radius-full;
+  color: $on-surface-variant;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+
+  &:hover { background: $surface-container-high; }
+  .material-icons-outlined { font-size: 20px; }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex: 1;
+}
+
+.brand-indicator {
+  width: 16px;
+  height: 40px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.btn-edit {
+  @include btn-primary;
+  gap: $spacing-xs;
+  margin-left: auto;
+
+  .material-icons-outlined { font-size: 18px; }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+
+  @include mobile {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detail-card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  .display-sm {
+    font-size: 1.5rem;
+  }
+
+  .body-lg {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: $on-surface;
+  }
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $on-surface-variant;
+
+  &.active {
+    color: #2e7d32;
+    .material-icons-outlined { color: #2e7d32; }
+  }
+
+  .material-icons-outlined { font-size: 18px; }
+}
+
+.color-card {
+  align-items: flex-start;
+}
+
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-md;
+  margin-top: $spacing-xs;
+}

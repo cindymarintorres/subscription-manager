@@ -1,19 +1,50 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { SubscriptionService } from '../../core/services/subscription.service';
+import { Subscription, CATEGORIES } from '../../core/models/subscription.model';
 
 @Component({
   selector: 'app-subscription-detail',
   standalone: true,
-  imports: [],
-  template: `
-    <div style="padding: 2rem; text-align: center;">
-      <h1 style="font-family: Manrope, sans-serif; margin-bottom: 1rem;">
-        Detalle de Suscripcion
-      </h1>
-      <p style="color: #737785;">
-        Componente pendiente de implementacion.
-      </p>
-    </div>
-  `,
-  styles: ``
+  imports: [CurrencyPipe, DatePipe],
+  templateUrl: './subscription-detail.component.html',
+  styleUrl: './subscription-detail.component.scss'
 })
-export class SubscriptionDetailComponent {}
+export class SubscriptionDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private subscriptionService = inject(SubscriptionService);
+
+  subscription = signal<Subscription | null>(null);
+  isLoading = signal(true);
+  categories = CATEGORIES;
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.router.navigate(['/subscriptions']);
+      return;
+    }
+    this.subscriptionService.getById(Number(id)).subscribe({
+      next: (sub) => {
+        this.subscription.set(sub);
+        this.isLoading.set(false);
+      },
+      error: () => this.router.navigate(['/subscriptions']),
+    });
+  }
+
+  getCategoryLabel(category: string): string {
+    return this.categories.find(c => c.value === category)?.label ?? category;
+  }
+
+  goBack(): void {
+    this.router.navigate(['/subscriptions']);
+  }
+
+  goToEdit(): void {
+    const sub = this.subscription();
+    if (sub) this.router.navigate(['/subscriptions', sub.id, 'edit']);
+  }
+}
