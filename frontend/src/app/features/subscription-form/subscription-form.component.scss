@@ -128,10 +128,24 @@
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
   gap: $spacing-sm;
   padding-top: $spacing-sm;
   border-top: 1px solid $outline-variant;
+
+  @media (min-width: 500px) {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.btn-action {
+  flex: 1;
+
+  @media (min-width: 500px) {
+    flex: 0 0 auto;
+    min-width: 160px;
+  }
 }
 
 .btn-cancel {
@@ -141,6 +155,13 @@
 .btn-submit {
   @include btn-primary;
   gap: $spacing-xs;
+}
+
+.price-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: $primary-container;
+  font-weight: 500;
 }
 
 .spinning {

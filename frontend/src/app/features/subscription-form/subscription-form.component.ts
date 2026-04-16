@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { CATEGORIES, Subscription } from '../../core/models/subscription.model';
 
@@ -16,7 +17,7 @@ type SubscriptionForm = {
 @Component({
   selector: 'app-subscription-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DecimalPipe],
   templateUrl: './subscription-form.component.html',
   styleUrl: './subscription-form.component.scss'
 })

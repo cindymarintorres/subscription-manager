@@ -30,7 +30,7 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="price">Precio</label>
+        <label class="form-label" for="price">Precio mensual</label>
         <input
           id="price"
           type="number"
@@ -45,6 +45,8 @@
           <span class="field-error">El precio es obligatorio.</span>
         } @else if (hasError('price', 'min')) {
           <span class="field-error">El precio debe ser mayor a 0.</span>
+        } @else if (form.get('billingCycle')?.value === 'annual' && form.get('price')?.value > 0) {
+          <span class="price-hint">Proyección anual: {{ form.get('price')!.value * 12 | number:'1.2-2' }} USD</span>
         }
       </div>
 
@@ -108,8 +110,8 @@
     </div>
 
     <div class="form-actions">
-      <button type="button" class="btn-cancel" (click)="onCancel()">Cancelar</button>
-      <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+      <button type="button" class="btn-cancel btn-action" (click)="onCancel()">Cancelar</button>
+      <button type="submit" class="btn-submit btn-action" [disabled]="isSubmitting()">
         @if (isSubmitting()) {
           <span class="material-icons-outlined spinning">sync</span>
         } @else {
