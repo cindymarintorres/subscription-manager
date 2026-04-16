@@ -70,6 +70,20 @@
 
 ---
 
+## Bonus 3 — Filtro de precio y navegación desde el dashboard
+
+**Qué hice:** Agregué dos mejoras al `DashboardComponent` que no estaban en las instrucciones originales:
+
+1. **Filtro de precio (ordenamiento):** Un signal `priceSort: signal<'none' | 'asc' | 'desc'>` que cicla entre tres estados al hacer clic en el botón "Precio". El `computed()` `activeSubscriptions` incorpora este sort — si es `'asc'` ordena `a.price - b.price`, si es `'desc'` lo invierte, y en `'none'` devuelve el orden original de la API. El botón se marca visualmente como activo cuando hay algún ordenamiento aplicado y su label cambia a "Precio ↑" o "Precio ↓".
+
+2. **Card "Agregar Suscripción" funcional:** La tarjeta con borde punteado del dashboard ahora llama a `navigateToNew()` que rutea a `/subscriptions/new`. Se añadió `role="button"` y `tabindex="0"` para accesibilidad, y `:focus-visible` en el SCSS para navegación por teclado.
+
+**Por qué:** El botón de precio ya existía en el diseño pero no hacía nada — dejarlo muerto sería una regresión visible. El sort como `computed()` sobre el array existente no requiere llamada al backend ni estado adicional complejo. La card de agregar era obviamente un CTA que debía navegar al formulario.
+
+**Alternativas consideradas:** Para el sort de precio podría haber implementado filtrado real por rango (ej. `< $10`, `$10-$30`, `> $30`), pero un simple toggle asc/desc es suficiente para la escala del proyecto y más predecible para el usuario. Un filtro por rango requeriría un UI más elaborado (slider o inputs numéricos).
+
+---
+
 ## Notas generales
 
 - **Versión de Angular:** 19 (con APIs de Angular 17+ para `input()`, `output()`)
