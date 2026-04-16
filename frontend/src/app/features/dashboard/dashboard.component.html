@@ -13,8 +13,12 @@
         <p class="body-md">Suscripciones activas gestionadas</p>
       </div>
       <div class="portfolio-filters">
-        <button class="filter-chip active">Categoria</button>
-        <button class="filter-chip">Precio</button>
+        <button class="filter-chip">Categoría</button>
+        <button
+          class="filter-chip"
+          [class.active]="priceSort() !== 'none'"
+          (click)="togglePriceSort()"
+        >{{ getPriceSortLabel() }}</button>
       </div>
     </div>
 
@@ -41,7 +45,7 @@
       </div>
 
       <div class="add-section">
-        <div class="add-card">
+        <div class="add-card" (click)="navigateToNew()" role="button" tabindex="0">
           <span class="material-icons-outlined">add</span>
           <p class="body-md">Agregar Suscripcion</p>
           <p class="label-md" style="text-transform: none;">Gestiona un nuevo servicio digitalmente</p>

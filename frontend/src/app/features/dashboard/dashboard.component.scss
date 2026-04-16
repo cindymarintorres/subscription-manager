@@ -83,9 +83,10 @@
   transition: background 0.2s ease, border-color 0.2s ease;
   text-align: center;
   .material-icons-outlined { font-size: 32px; color: $outline; }
-  &:hover {
+  &:hover, &:focus-visible {
     background: $surface-container-low;
     border-color: $primary-container;
+    outline: none;
     .material-icons-outlined { color: $primary-container; }
   }
 }
