@@ -22,14 +22,14 @@ export class SubscriptionService {
   }
 
   create(subscription: Omit<Subscription, 'id' | 'createdAt'>): Observable<Subscription> {
-    throw new Error('Metodo create() no implementado');
+    return this.http.post<Subscription>(this.apiUrl, subscription);
   }
 
   update(id: number, subscription: Partial<Subscription>): Observable<Subscription> {
-    throw new Error('Metodo update() no implementado');
+    return this.http.put<Subscription>(`${this.apiUrl}/${id}`, subscription);
   }
 
   delete(id: number): Observable<void> {
-    throw new Error('Metodo delete() no implementado');
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
