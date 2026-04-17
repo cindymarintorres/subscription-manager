@@ -24,3 +24,9 @@ export const CATEGORIES: { value: Subscription['category']; label: string; icon:
   { value: 'utilities', label: 'Utilidades', icon: 'build' },
   { value: 'lifestyle', label: 'Estilo de vida', icon: 'favorite' },
 ];
+
+export enum PriceSort {
+  None = 'none',
+  Asc = 'asc',
+  Desc = 'desc'
+}
