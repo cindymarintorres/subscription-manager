@@ -1,9 +1,5 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { SubscriptionsComponent } from './features/subscriptions/subscriptions.component';
-import { SubscriptionFormComponent } from './features/subscription-form/subscription-form.component';
-import { SubscriptionDetailComponent } from './features/subscription-detail/subscription-detail.component';
 
 export const routes: Routes = [
   {
@@ -11,11 +7,11 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'subscriptions', component: SubscriptionsComponent },
-      { path: 'subscriptions/new', component: SubscriptionFormComponent },
-      { path: 'subscriptions/:id', component: SubscriptionDetailComponent },
-      { path: 'subscriptions/:id/edit', component: SubscriptionFormComponent },
+      { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+      { path: 'subscriptions', loadComponent: () => import('./features/subscriptions/subscriptions.component').then(m => m.SubscriptionsComponent) },
+      { path: 'subscriptions/new', loadComponent: () => import('./features/subscription-form/subscription-form.component').then(m => m.SubscriptionFormComponent) },
+      { path: 'subscriptions/:id', loadComponent: () => import('./features/subscription-detail/subscription-detail.component').then(m => m.SubscriptionDetailComponent) },
+      { path: 'subscriptions/:id/edit', loadComponent: () => import('./features/subscription-form/subscription-form.component').then(m => m.SubscriptionFormComponent) },
     ]
   }
 ];
