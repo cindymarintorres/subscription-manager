@@ -6,6 +6,7 @@ import { MonthlySummaryComponent } from './components/monthly-summary/monthly-su
 import { UpcomingRenewalsComponent } from './components/upcoming-renewals/upcoming-renewals.component';
 import { SubscriptionCardComponent } from './components/subscription-card/subscription-card.component';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -53,13 +54,15 @@ export class DashboardComponent implements OnInit {
 
   loadData(): void {
     this.isLoading.set(true);
-    this.subscriptionService.getAll().subscribe({
-      next: (data) => this.subscriptions.set(data),
-      error: (err) => console.error('Error cargando suscripciones:', err),
-    });
-    this.subscriptionService.getStats().subscribe({
-      next: (data) => this.stats.set(data),
-      error: (err) => console.error('Error cargando estadisticas:', err),
+    forkJoin({
+      subscriptions: this.subscriptionService.getAll(), //Consulta suscripciones
+      stats: this.subscriptionService.getStats(), //Consulta estadísticas
+    }).subscribe({
+      next: ({ subscriptions, stats }) => {
+        this.subscriptions.set(subscriptions);
+        this.stats.set(stats);
+      },
+      error: (err) => console.error('Error cargando datos:', err),
       complete: () => this.isLoading.set(false),
     });
   }
