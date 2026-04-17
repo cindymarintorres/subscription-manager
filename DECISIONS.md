@@ -2,124 +2,122 @@
 
 ## Tarea 1 — Servicio HTTP
 
-**Qué hice:** Implementé los tres métodos faltantes (`create`, `update`, `delete`) en `subscription.service.ts` siguiendo el mismo patrón de los métodos existentes: `HttpClient` con generics tipados explícitamente, misma `apiUrl` como base, y retorno directo del Observable sin `pipe` innecesario.
+**Qué hice:** Armé los métodos que faltaban (`create`, `update`, `delete`) en `subscription.service.ts`. Seguí el mismo patrón de lo que ya estaba: usar `HttpClient` con los tipos genéricos bien definidos y la misma ruta base de la API. Devolví el Observable directo sin `pipe`
 
-**Por qué:** El patrón ya establecido era claro — una capa de servicio delgada que devuelve `Observable<T>` sin procesamiento adicional. Añadir más capas (catchError, map) habría sido sobreingeniería para lo que el backend ya entrega en camelCase y formato correcto.
+**Por qué:** Me guié por el patrón que ya tenía el código. Quería dejar la capa de servicio súper delgada y que solo devolviera un `Observable<T>`. El backend ya manda todo ordenado y en camelCase, así que colocar un catchError o un map me parecía agregar complejidad innecesaria.
 
-**Alternativas consideradas:** Podría haber usado un interceptor global para manejo de errores HTTP, pero dado que el proyecto no tiene uno definido y la tarea no lo requería, mantuve los errores como observables nativos para que cada componente los maneje según su contexto.
+**Alternativas consideradas:** Pensé en armar un interceptor global para manejar los errores HTTP. Como el proyecto no tenia uno por defecto y la prueba no solicitaba agregar el mismo, preferí mantenerlo simple y dejar que los errores se manejen dentro de cada componente.
 
 ---
 
 ## Tarea 2 — Lista de suscripciones
 
-**Qué hice:** Implementé `filteredSubscriptions` como un `computed()` que combina ambos filtros en una sola pasada sobre el array. Reemplacé el placeholder HTML con un `@for` iterando sobre `filteredSubscriptions()`. Añadí métodos de navegación y delegué el delete al `confirmDeleteId` signal para controlar el diálogo.
+**Qué hice:** Creé un signal `computed()` llamado `filteredSubscriptions`. Este signal combina la búsqueda por texto y el filtro de categoría iterando una sola vez sobre todo el array. En el HTML quité el texto de relleno y metí un `@for` que itera sobre este signal. También conecté el borrado a un signal `confirmDeleteId` para manejar el modal.
 
-**Por qué:** Un `computed()` que combina el filtro de búsqueda y categoría en una única operación es más eficiente que dos señales intermedias. Angular recalcula automáticamente cuando cambia `searchQuery` o `activeFilter`, sin necesidad de efectos ni subscripciones manuales.
+**Por qué:** Usar un `computed()` para ambos filtros es súper eficiente, no tuve que armar dos señales intermedias al hilo. Lo bueno de Angular 19 es que recalcula esto solo cuando cambias el texto o la categoría. No existe la necesidad de agregar effects o desuscribirme a mano.
 
-**Alternativas consideradas:** Podría haber separado los filtros en dos `computed()` encadenados, pero concatenar el filtrado en uno solo es más legible y evita generación de arrays intermedios.
+**Alternativas consideradas:** Tuve la idea de separar los filtros en dos `computed()` distintos. Al final preferí juntar la lógica en uno solo para que quedara más fácil de leer, y de paso me ahorro crear arrays de sobra en la memoria.
 
 ---
 
 ## Tarea 3 — Formulario de nueva suscripción
 
-**Qué hice:** Creé un `FormGroup` tipado con `FormGroup<SubscriptionForm>` usando el tipo genérico de Angular 14+. Cada control es `nonNullable` para evitar `| null` en los tipos de valor. El toggle de ciclo de facturación usa dos botones con `setValue()` en lugar de un `<select>`, lo cual se alinea mejor con el diseño visual.
+**Qué hice:** Armé un `FormGroup` pasándole como generics `FormGroup<SubscriptionForm>`, aprovechando la API estricta de Angular. Puse cada control como `nonNullable` para no tener que manejar tipo de datos nulos. Para el ciclo de facturación, armé un toggle visual con dos botones usando `setValue()` en lugar del clásico `<select>`.
 
-**Por qué:** Reactive Forms con generics tipados elimina el uso de `any` y da autocompletado completo. El toggle visual es más intuitivo para una elección binaria que un dropdown.
+**Por qué:** Tipar los Reactive Forms evita el uso de `any` y ayuda el autocompletado en el editor. El toggle con botones queda mucho más limpio y moderno visualmente para elegir entre solo dos opciones, se adapta mejor al diseño.
 
-**Alternativas consideradas:** Template-driven forms habrían simplificado el código, pero son más difíciles de testear y menos predecibles con signals. El tipo genérico en `FormGroup` podría omitirse, pero añade seguridad de tipos en los getters.
+**Alternativas consideradas:** Los formularios por template (template-driven) eran una opción para escribir menos. Pero la verdad es que son más tediosos de testear y pueden dar dolores de cabeza con signals. Podría no haber tipado el `FormGroup`, pero perder el tipado en los getters se sentía como un retroceso.
 
 ---
 
 ## Tarea 4 — Editar suscripción
 
-**Qué hice:** Reutilicé exactamente el mismo componente de formulario (`SubscriptionFormComponent`). El componente detecta si existe un `id` en `ActivatedRoute.snapshot.paramMap` en `ngOnInit()`. Si lo hay, llama `getById()` y usa `patchValue()` para precargar el formulario. El título y el botón de submit cambian según `isEditMode` (una propiedad computada del `editId` signal).
+**Qué hice:** Reutilicé tal cual el componente que armé para crear (`SubscriptionFormComponent`). El componente mira el `ngOnInit()`, y si encuentra un `id` en `ActivatedRoute.snapshot.paramMap`, llama a `getById()` y rellena los datos con `patchValue()`. Cambié cosas como el título y el botón dinámicamente usando una propiedad `isEditMode`, computada a partir del signal `editId`.
 
-**Por qué:** Un único componente para crear y editar reduce duplicación de código. La detección en `ngOnInit` con `snapshot` es suficiente porque la ruta no cambia mientras el componente está activo.
+**Por qué:** Armar otro componente casi igual para editar era reescribir código. Con leer el parámetro usando `snapshot` en el init alcanza perfecto. El usuario no va a estar cambiando de `/edit/1` a `/edit/2` con el componente ya abierto, así que no es necesario escuchar cambios en tiempo real en la ruta.
 
-**Alternativas consideradas:** Podría haber usado `ActivatedRoute.params` (Observable) en vez de `snapshot`, lo que permitiría reaccionar a cambios de parámetro sin destruir el componente. Para este caso de uso es innecesario: no hay navegación entre distintos `/edit` sin recargar el componente.
+**Alternativas consideradas:** Pensé en escuchar `ActivatedRoute.params` como Observable por si cambiaba el ID de repente. Pero para este caso era complicarse demasiado. Al no tener navegación paralela entre ediciones, leer el id inicial hace todo mucho más simple y directo.
 
 ---
 
 ## Tarea 5 — Confirm dialog + delete
 
-**Qué hice:** Implementé `ConfirmDialogComponent` con un overlay fijo semitransparente y una card centrada con animaciones de entrada (`fade-in` + `slide-up`). Usa `input()` y `output()` de la API signal-based de Angular 17+. El estado del diálogo en la lista de suscripciones se controla con un signal `confirmDeleteId: signal<number | null>(null)` — si es `null`, el diálogo no se muestra; si tiene un ID, se muestra con ese contexto.
+**Qué hice:** Creé un componente `ConfirmDialogComponent` flotante, centrado y con animaciones de entrada chulas (`fade-in` y `slide-up`). Lo armé con las nuevas APIs de Angular: `input()` y `output()` con signals. En la vista principal uso un signal `confirmDeleteId` que empieza en `null`. Si le pasas un ID válido, el modal se muestra.
 
-**Por qué:** El signal `confirmDeleteId` modela el estado de UI de forma explícita y reactiva. No necesito un flag booleano separado: el ID nulo actúa como flag. Esto evita que se pueda tener el diálogo abierto sin contexto de qué eliminar.
+**Por qué:** Manejar el estado del modal directo con el ID a eliminar y un signal en `null` me pareció lo justo y adecuado. Me ahorro tener crear una variable booleana separada,para mostrar u ocultar. Si el signal vale null, modal oculto; si tiene número, sabemos que mostrar y qué borrar. Imposible que se trabe por tener un estado inconsistente.
 
-**Alternativas consideradas:** Podría haber usado un servicio de diálogo con `Subject` o un overlay gestionado desde un componente host. Para la escala de este proyecto, el enfoque inline con `@if (confirmDeleteId() !== null)` es más simple y no requiere infraestructura adicional.
+**Alternativas consideradas:** Consideré hacer algo robusto con un servicio global, un `Subject` y renderizar overlays a mano desde un nodo raíz. Para el tamaño de lo que necesitaba la prueba, me bastó poner un `@if (confirmDeleteId() !== null)` y renderizarlo integrado ahí mismo.
 
 ---
 
 ## Bonus 1 — Vista de detalle
 
-**Qué hice:** Componente standalone que carga la suscripción por ID de ruta en `ngOnInit`. La plantilla usa dos bloques `@if` separados (uno para loading, otro para el contenido) porque Angular no permite `@else if` con alias `as`. La ruta `/subscriptions/:id` se registró **después** de `/subscriptions/new` para evitar que "new" sea interpretado como un ID numérico por el router.
+**Qué hice:** Me armé un componente standalone normal que saca el ID de la ruta en el `ngOnInit` y carga la data. En la vista usé dos `@if` distintos (uno para el loader, otro para los datos). Mantuve esto separado porque en Angular no se puede hacer `@else if` asignando alias `as`. Ojo, tuve cuidado de registrar la ruta `/:id` recién *después* de `/new` en mi router.
 
-**Por qué:** El orden de rutas en Angular es secuencial: registrar `/new` antes que `/:id` garantiza que "new" se resuelva al formulario y no intente cargar el detalle con ID "new".
+**Por qué:** Las rutas de Angular se leen de arriba a abajo. Si ponía la ruta con parámetro arriba, al entrar a "new" el sistema iba a pensar que buscaba una suscripción con ID "new" e iba a tirar error en red. El orden importaba.
 
-**Alternativas consideradas:** Usar un guard de ruta que valide que el parámetro sea un número, o nombrar la ruta de creación de forma que no colisione (e.g., `/subscriptions/create`).
+**Alternativas consideradas:** Pude haberle puesto un guard a la ruta para atajar que el parámetro fuera puramente numérico. O también cambiar la URL de creación a algo inconfundible como `/create`. Preferí el orden estricto de rutas que es fácil e igual de efectivo.
 
 ---
 
 ## Bonus 2 — Empty state reutilizable
 
-**Qué hice:** Componente standalone con cuatro `input()` signal-based: `title`, `message`, `actionLabel` y `actionRoute`. Si `actionLabel` y `actionRoute` están presentes, renderiza un enlace con `routerLink`. Estilos inline con `@use` del design system para no generar un archivo SCSS separado innecesario.
+**Qué hice:** Hice un componente pequeño, standalone, y agregue inputs basados en signal para: `title`, `message`, `actionLabel` y `actionRoute`. Si le pasas datos de acción, dibuja el boton y la ruta correspondientes con `routerLink`. Agregue SCSS inline importándolo con `@use`, para no llenar la carpeta de archivos.
 
-**Por qué:** Un componente de empty state reutilizable evita duplicar el mismo HTML en cada lista o pantalla vacía. Los inputs opcionales con defaults hacen que sea usar‑y-olvidar: puedes instanciarlo sin props y tiene sentido visual.
+**Por qué:** Para reutilizar el HTML y no tener que escribirlo en cada componente que lo necesite. Lo dejé flexible y con algunos valores default. Sirve para invocarlo donde sea.
 
-**Alternativas consideradas:** Podría haberlo implementado como una directiva estructural, pero un componente es más semántico y más fácil de estilizar independientemente.
+**Alternativas consideradas:** Se me ocurrió que una directiva estructural para el empty state pintaba bien, pero a la larga un componente es mucho más claro estructuralmente. También es mas fácil aislarle un poco de estilo.
 
 ---
 
 ## Bonus 3 — Filtros del dashboard y navegación desde add-card
 
-**Qué hice:** Agregué tres mejoras al `DashboardComponent` que no estaban en las instrucciones originales:
+**Qué hice:** Le agregue tres cosas al `DashboardComponent` que no formaban parte de las reglas iniciales:
 
-1. **Filtro por categoría:** Un signal `categoryFilter: signal<string>('all')` que cicla entre `all → entertainment → software → utilities → lifestyle → all` al hacer clic. El label del botón cambia al nombre de la categoría activa (ej. "Entretenimiento") y se activa visualmente cuando el filtro no es `'all'`. Al llegar al final del ciclo vuelve a mostrar todas.
+1. **Filtro por categoría:** Agregue un signal que guarda la categoría activa (`all` por defecto) y va rotando al clickear. Empieza en Todas, pasa por Entretenimiento, Software, etc… y da la vuelta. Cambia el label dinámicamente y se resalta si hay filtro.
+2. **Ordenamiento por precio:** Agregue otro signal para ciclar entre tres formas de ordenar: nada, precio mayor y menor (`none`, `asc`, `desc`). Estos filtros no afectan al backend, los combiné directo en un `computed()` (`activeSubscriptions`), filtrando primero y ordenando después en un solo viaje.
+3. **Card "Agregar":** Hice que esa tarjeta punteada no esté solo de adorno y te mande de verdad al `/subscriptions/new`. También le sumé unos detallitos de accesibilidad como `role="button"` para que sea amigable teclear sobre él.
 
-2. **Ordenamiento por precio:** Un signal `priceSort: signal<'none' | 'asc' | 'desc'>` que alterna entre tres estados. El label cambia a "Precio ↑" o "Precio ↓" según el orden activo. Ambos filtros (categoría y precio) se componen dentro del mismo `computed()` `activeSubscriptions` — primero filtra por categoría, luego ordena — sin llamadas extra al backend.
+**Por qué:** Se mostraba un poco vacio el dashboard, y me pareció que los filtros inactivos rompían un poco la inmersión del diseño. Meter signals encadenados en un `computed()` daba resultados súper rápidos sin quemar ciclos de memoria. 
 
-3. **Card "Agregar Suscripción" funcional:** La tarjeta con borde punteado del dashboard ahora llama a `navigateToNew()` que rutea a `/subscriptions/new`. Se añadió `role="button"` y `tabindex="0"` para accesibilidad, y `:focus-visible` en el SCSS para navegación por teclado.
-
-**Por qué:** Los botones de filtro ya existían en el diseño pero no hacían nada — dejarlos inertes sería una regresión visible en la demo. Implementar ambos filtros como signals que se componen en un `computed()` es O(n) por pasada y no requiere estado adicional. La card de agregar era claramente un CTA que debía navegar al formulario.
-
-**Alternativas consideradas:** Para categoría podría haber mostrado un dropdown/popover con checkboxes en lugar del ciclo. Para precio, un rango numérico con slider sería más preciso. Ambas opciones requieren componentes de UI adicionales y no hay librerías de UI en el proyecto — el ciclo de estados es la opción más pragmática sin dependencias.
+**Alternativas consideradas:** Poner modales de checkbox para las categorías o rangos numéricos con un slider para el precio. Al final, no existía librería de botones o inputs pre-armados en el proyecto.
 
 ---
 
 ## Notas generales
 
-- **Versión de Angular:** 19 (con APIs de Angular 17+ para `input()`, `output()`)
-- **Patrón principal:** standalone components + signals + reactive forms
-- **Por qué signals sobre RxJS para estado local:** Los signals de Angular son síncronos, más simples de leer y debuggear, y Angular los integra nativamente con `@if`/`@for`. No necesito `async pipe` ni manejar subscripciones manualmente para estado de UI. RxJS sigue siendo la herramienta correcta para las llamadas HTTP (que son inherentemente asíncronas), pero el estado de componente local se gestiona mejor con signals.
-- **Por qué no `BehaviorSubject`:** En Angular 19, `BehaviorSubject` para estado de componente es un antipatrón cuando signals están disponibles. Señales tienen detección de cambios optimizada de Angular y no requieren `.pipe(takeUntilDestroyed())` para evitar leaks.
+- **Versión de Angular:** Usé la versión 19 y aproveché varias APIs modernas (como el signal-based `input()` y `output()`).
+- **Patrón principal:** Todos componentes standalone. Todo el estado interno llevado con signals y manejo de formularios completamente reactivos.
+- **Signals vs RxJS:** Lo mío con los signals en estado local es por una cuestión de legibilidad. Cero async pipes, ni subscripciones colgadas dando vueltas. Son simples y síncronos. Guardo el RxJS solo para llamadas a endpoints HTTP, que es donde el poder del asincronismo brilla.
+- **Cero BehaviorSubject:** Usar `BehaviorSubject` para controlar variables de estado de un componente en Angular 19 ya huele raro. Un signal vuela y viene listo para detección de cambios optimizada, además evita esos famosos memory leaks en el estado local.
 
 ## Correcciones post-revisión
 
-**`PriceSort` como enum:** El `type PriceSort = 'none' | 'asc' | 'desc'` fue reemplazado por un `enum PriceSort` en `dashboard.component.ts`. Los enums en TypeScript permiten exhaustividad verificable por el compilador — si se añade un nuevo estado, el compilador señala todos los `switch`/condicionales que no lo manejan. El `togglePriceSort` además fue refactorizado a `signal.update()` en vez de leer con `()` y hacer `set()` por separado, que es el patrón correcto cuando el nuevo valor depende del anterior.
+- **`PriceSort` como enum:** Reemplacé el union type `'none' | 'asc' | 'desc'` por un enum. 
+La ventaja concreta es que si en algún momento agrego un nuevo estado de orden, TypeScript 
+me avisa en compilación si hay un switch que no lo cubre. También aproveché para usar 
+`signal.update()` en el toggle, que es el patrón correcto cuando el nuevo valor depende del anterior.
 
-**`forkJoin` en `loadData()`:** Ambos componentes (`DashboardComponent` y `SubscriptionsComponent`) tenían una race condition donde `isLoading` se ponía en `false` en el `complete` de `getStats()` independientemente de si `getAll()` había terminado. Consolidado con `forkJoin` para esperar ambas respuestas antes de ocultar el loading.
+- **`forkJoin` en `loadData()`:** Había una race condition entre `getAll()` y `getStats()` — 
+el loading se apagaba cuando terminaba `getStats()` independientemente de si `getAll()` 
+había respondido. Lo resolví con `forkJoin` para que ambas peticiones terminen antes de 
+ocultar el spinner.
 
-**Delete sin recargar:** `onConfirmDelete()` en `SubscriptionsComponent` llamaba a `loadData()` después de eliminar, generando un viaje innecesario al servidor. Reemplazado por `subscriptions.update()` para filtrar localmente el elemento eliminado. El mismo patrón se aplicó al `DashboardComponent` que ahora tiene confirm dialog real en vez de `console.log`.
+- **Delete sin recargar:** Después de eliminar, el componente hacía un nuevo `loadData()` 
+completo al servidor. Lo reemplacé con `subscriptions.update()` filtrando el ID localmente. 
+Apliqué el mismo patrón en el dashboard.
 
-**Memory leak en `SubscriptionFormComponent`:** Las suscripciones en `ngOnInit` y `onSubmit` no se cancelaban si el usuario navegaba hacia atrás antes de recibir respuesta del servidor. Corregido con `takeUntilDestroyed(this.destroyRef)` de `@angular/core/rxjs-interop`.
+- **Memory leak en `SubscriptionFormComponent`:** Las suscripciones de `ngOnInit` y `onSubmit` 
+quedaban activas si el usuario navegaba antes de recibir respuesta del servidor. Lo corregí 
+con `takeUntilDestroyed(this.destroyRef)` de `@angular/core/rxjs-interop`.
 
-**`status` en `create()`:** El estado inicial de una suscripción es responsabilidad del backend, no del cliente. Removido `status: 'active'` del payload de creación y actualizado el tipo de `create()` para excluirlo con `Omit`.
+- **Payload de `create()`:** Estaba enviando `status: 'active'` desde el cliente, lo cual 
+no tiene sentido — el estado inicial es responsabilidad del backend. Lo excluí del tipo 
+usando `Omit` en la firma del servicio.
 
-**`CATEGORIES` en `SubscriptionDetailComponent`:** La constante `CATEGORIES` es estática y no necesita ser una propiedad de instancia del componente. Usada directamente en el método `getCategoryLabel()` sin asignarla a `this.categories`.
+- **`CATEGORIES` en el detail:** La constante estaba asignada como propiedad de instancia 
+sin necesidad. El único uso era dentro de `getCategoryLabel()`, así que la llamo directo 
+desde ahí sin pasarla por `this`.
 
-**Lazy Loading:** Para aplicaciones modernas, es mejor usar Lazy Loading en las rutas. En lugar de importar los componentes arriba y poner component: DashboardComponent, se puede hacer así:
-
-```typescript
-// app.routes.ts
-export const routes: Routes = [
-  {
-    path: '',
-    component: LayoutComponent,
-    children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },]
-  }
-];
-```
-
-Porque evita que el navegador descargue el código de toda la aplicación de golpe. Solo descargará el código del Dashboard cuando el usuario realmente entre a esa ruta.
+- **Lazy loading en rutas:** En vez de importar los componentes directamente en `app.routes.ts`, 
+usé `loadComponent` para que cada módulo se descargue solo cuando el usuario navega a esa ruta.
