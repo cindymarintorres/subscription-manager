@@ -21,7 +21,7 @@ export class SubscriptionService {
     return this.http.get<Subscription>(`${this.apiUrl}/${id}`);
   }
 
-  create(subscription: Omit<Subscription, 'id' | 'createdAt'>): Observable<Subscription> {
+  create(subscription: Omit<Subscription, 'id' | 'createdAt' | 'status'>): Observable<Subscription> {
     return this.http.post<Subscription>(this.apiUrl, subscription);
   }
 

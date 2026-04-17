@@ -78,7 +78,7 @@ export class SubscriptionFormComponent implements OnInit {
 
     const request$ = id
       ? this.subscriptionService.update(id, value)
-      : this.subscriptionService.create({ ...value, icon: 'label', status: 'active' });
+      : this.subscriptionService.create({ ...value, icon: 'label' });
 
     request$
       .pipe(takeUntilDestroyed(this.destroyRef))
