@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { CATEGORIES, Subscription } from '../../core/models/subscription.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type SubscriptionForm = {
   name: FormControl<string>;
@@ -22,9 +23,10 @@ type SubscriptionForm = {
   styleUrl: './subscription-form.component.scss'
 })
 export class SubscriptionFormComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private subscriptionService = inject(SubscriptionService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly subscriptionService = inject(SubscriptionService);
+  private readonly destroyRef = inject(DestroyRef);
 
   categories = CATEGORIES;
   editId = signal<number | null>(null);
@@ -43,7 +45,9 @@ export class SubscriptionFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.editId.set(Number(id));
-      this.subscriptionService.getById(Number(id)).subscribe({
+      this.subscriptionService.getById(Number(id))
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: (sub) => {
           this.form.patchValue({
             name: sub.name,
@@ -76,7 +80,9 @@ export class SubscriptionFormComponent implements OnInit {
       ? this.subscriptionService.update(id, value)
       : this.subscriptionService.create({ ...value, icon: 'label', status: 'active' });
 
-    request$.subscribe({
+    request$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
         console.error('Error guardando suscripcion:', err);
