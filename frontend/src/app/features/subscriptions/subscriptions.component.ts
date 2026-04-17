@@ -6,6 +6,7 @@ import { SubscriptionService } from '../../core/services/subscription.service';
 import { Subscription, SubscriptionStats, CATEGORIES } from '../../core/models/subscription.model';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-subscriptions',
@@ -27,18 +28,20 @@ export class SubscriptionsComponent implements OnInit {
   categories = CATEGORIES;
 
   nextRenewal = computed(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const sorted = [...this.subscriptions()]
-      .filter(s => s.status === 'active')
-      .sort((a, b) => new Date(a.nextPaymentDate).getTime() - new Date(b.nextPaymentDate).getTime());
-    return sorted.length > 0 ? sorted[0] : null;
+      .filter(subs => subs.status === 'active' && new Date(subs.nextPaymentDate) >= today)
+      .sort((subsA, subsB) => new Date(subsA.nextPaymentDate).getTime() - new Date(subsB.nextPaymentDate).getTime());
+    return sorted[0] ?? null;
   });
 
   filteredSubscriptions = computed(() => {
     const query = this.searchQuery().toLowerCase().trim();
     const filter = this.activeFilter();
-    return this.subscriptions().filter(s => {
-      const matchesSearch = !query || s.name.toLowerCase().includes(query);
-      const matchesCategory = filter === 'all' || s.category === filter;
+    return this.subscriptions().filter(subs => {
+      const matchesSearch = !query || subs.name.toLowerCase().includes(query);
+      const matchesCategory = filter === 'all' || subs.category === filter;
       return matchesSearch && matchesCategory;
     });
   });
@@ -49,12 +52,15 @@ export class SubscriptionsComponent implements OnInit {
 
   loadData(): void {
     this.isLoading.set(true);
-    this.subscriptionService.getAll().subscribe({
-      next: (data) => this.subscriptions.set(data),
-      error: (err) => console.error('Error cargando suscripciones:', err),
-    });
-    this.subscriptionService.getStats().subscribe({
-      next: (data) => this.stats.set(data),
+    forkJoin({
+      suscriptions: this.subscriptionService.getAll(),
+      stats: this.subscriptionService.getStats()
+    }).subscribe({
+      next: ({ suscriptions, stats }) => {
+        this.subscriptions.set(suscriptions);
+        this.stats.set(stats);
+      },
+      error: (err) => console.error('Error cargando datos:', err),
       complete: () => this.isLoading.set(false),
     });
   }
@@ -101,5 +107,5 @@ export class SubscriptionsComponent implements OnInit {
 
   getCategoryLabel(category: string): string {
     return CATEGORIES.find(cat => cat.value === category)?.label ?? category;
-  } 
+  }
 }
