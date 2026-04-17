@@ -92,3 +92,34 @@
 - **Patrón principal:** standalone components + signals + reactive forms
 - **Por qué signals sobre RxJS para estado local:** Los signals de Angular son síncronos, más simples de leer y debuggear, y Angular los integra nativamente con `@if`/`@for`. No necesito `async pipe` ni manejar subscripciones manualmente para estado de UI. RxJS sigue siendo la herramienta correcta para las llamadas HTTP (que son inherentemente asíncronas), pero el estado de componente local se gestiona mejor con signals.
 - **Por qué no `BehaviorSubject`:** En Angular 19, `BehaviorSubject` para estado de componente es un antipatrón cuando signals están disponibles. Señales tienen detección de cambios optimizada de Angular y no requieren `.pipe(takeUntilDestroyed())` para evitar leaks.
+
+## Correcciones post-revisión
+
+**`PriceSort` como enum:** El `type PriceSort = 'none' | 'asc' | 'desc'` fue reemplazado por un `enum PriceSort` en `dashboard.component.ts`. Los enums en TypeScript permiten exhaustividad verificable por el compilador — si se añade un nuevo estado, el compilador señala todos los `switch`/condicionales que no lo manejan. El `togglePriceSort` además fue refactorizado a `signal.update()` en vez de leer con `()` y hacer `set()` por separado, que es el patrón correcto cuando el nuevo valor depende del anterior.
+
+**`forkJoin` en `loadData()`:** Ambos componentes (`DashboardComponent` y `SubscriptionsComponent`) tenían una race condition donde `isLoading` se ponía en `false` en el `complete` de `getStats()` independientemente de si `getAll()` había terminado. Consolidado con `forkJoin` para esperar ambas respuestas antes de ocultar el loading.
+
+**Delete sin recargar:** `onConfirmDelete()` en `SubscriptionsComponent` llamaba a `loadData()` después de eliminar, generando un viaje innecesario al servidor. Reemplazado por `subscriptions.update()` para filtrar localmente el elemento eliminado. El mismo patrón se aplicó al `DashboardComponent` que ahora tiene confirm dialog real en vez de `console.log`.
+
+**Memory leak en `SubscriptionFormComponent`:** Las suscripciones en `ngOnInit` y `onSubmit` no se cancelaban si el usuario navegaba hacia atrás antes de recibir respuesta del servidor. Corregido con `takeUntilDestroyed(this.destroyRef)` de `@angular/core/rxjs-interop`.
+
+**`status` en `create()`:** El estado inicial de una suscripción es responsabilidad del backend, no del cliente. Removido `status: 'active'` del payload de creación y actualizado el tipo de `create()` para excluirlo con `Omit`.
+
+**`CATEGORIES` en `SubscriptionDetailComponent`:** La constante `CATEGORIES` es estática y no necesita ser una propiedad de instancia del componente. Usada directamente en el método `getCategoryLabel()` sin asignarla a `this.categories`.
+
+**Lazy Loading:** Para aplicaciones modernas, es mejor usar Lazy Loading en las rutas. En lugar de importar los componentes arriba y poner component: DashboardComponent, se puede hacer así:
+
+```typescript
+// app.routes.ts
+export const routes: Routes = [
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },]
+  }
+];
+```
+
+Porque evita que el navegador descargue el código de toda la aplicación de golpe. Solo descargará el código del Dashboard cuando el usuario realmente entre a esa ruta.
