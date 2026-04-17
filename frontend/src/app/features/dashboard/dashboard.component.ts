@@ -1,12 +1,11 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SubscriptionService } from '../../core/services/subscription.service';
-import { Subscription, SubscriptionStats, CATEGORIES } from '../../core/models/subscription.model';
+import { Subscription, SubscriptionStats, CATEGORIES, PriceSort } from '../../core/models/subscription.model';
 import { MonthlySummaryComponent } from './components/monthly-summary/monthly-summary.component';
 import { UpcomingRenewalsComponent } from './components/upcoming-renewals/upcoming-renewals.component';
 import { SubscriptionCardComponent } from './components/subscription-card/subscription-card.component';
-
-type PriceSort = 'none' | 'asc' | 'desc';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,21 +14,23 @@ type PriceSort = 'none' | 'asc' | 'desc';
     MonthlySummaryComponent,
     UpcomingRenewalsComponent,
     SubscriptionCardComponent,
+    ConfirmDialogComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  private subscriptionService = inject(SubscriptionService);
-  private router = inject(Router);
+  private readonly subscriptionService = inject(SubscriptionService);
+  private readonly router = inject(Router);
 
-  readonly categories = CATEGORIES;
 
   subscriptions = signal<Subscription[]>([]);
   stats = signal<SubscriptionStats>({ totalMonthly: 0, count: 0, annualProjection: 0 });
   isLoading = signal(true);
-  priceSort = signal<PriceSort>('none');
+  priceSort = signal<PriceSort>(PriceSort.None);
   categoryFilter = signal<string>('all');
+  // handleDelete real con confirm dialog (igual que en subscriptions):
+  confirmDeleteId = signal<number | null>(null);
 
   activeSubscriptions = computed(() => {
     const category = this.categoryFilter();
@@ -41,8 +42,8 @@ export class DashboardComponent implements OnInit {
       result = result.filter(s => s.category === category);
     }
 
-    if (sort === 'asc') return [...result].sort((a, b) => a.price - b.price);
-    if (sort === 'desc') return [...result].sort((a, b) => b.price - a.price);
+    if (sort === PriceSort.Asc) return [...result].sort((a, b) => a.price - b.price);
+    if (sort === PriceSort.Desc) return [...result].sort((a, b) => b.price - a.price);
     return result;
   });
 
@@ -64,30 +65,32 @@ export class DashboardComponent implements OnInit {
   }
 
   togglePriceSort(): void {
-    const current = this.priceSort();
-    if (current === 'none') this.priceSort.set('asc');
-    else if (current === 'asc') this.priceSort.set('desc');
-    else this.priceSort.set('none');
+    this.priceSort.update(current => {
+      if (current === PriceSort.None) return PriceSort.Asc;
+      if (current === PriceSort.Asc) return PriceSort.Desc;
+      return PriceSort.None;
+    });
   }
 
   getPriceSortLabel(): string {
     const sort = this.priceSort();
-    if (sort === 'asc') return 'Precio ↑';
-    if (sort === 'desc') return 'Precio ↓';
+    if (sort === PriceSort.Asc) return 'Precio ↑';
+    if (sort === PriceSort.Desc) return 'Precio ↓';
     return 'Precio';
   }
 
   cycleCategoryFilter(): void {
-    const allValues = ['all', ...this.categories.map(c => c.value)];
+    const allValues = ['all', ...CATEGORIES.map(c => c.value)];
     const currentIndex = allValues.indexOf(this.categoryFilter());
     this.categoryFilter.set(allValues[(currentIndex + 1) % allValues.length]);
   }
 
   getCategoryLabel(): string {
-    const current = this.categoryFilter();
-    if (current === 'all') return 'Categoría';
-    return this.categories.find(c => c.value === current)?.label ?? 'Categoría';
+    const currentCategory = this.categoryFilter();
+    if (currentCategory === 'all') return 'Categoría';
+    return CATEGORIES.find(cat => cat.value === currentCategory)?.label ?? currentCategory;
   }
+
 
   navigateToNew(): void {
     this.router.navigate(['/subscriptions/new']);
@@ -98,6 +101,22 @@ export class DashboardComponent implements OnInit {
   }
 
   handleDelete(subscription: Subscription): void {
-    console.log('Eliminar:', subscription.name);
+    this.confirmDeleteId.set(subscription.id);
+  }
+
+  onConfirmDelete(): void {
+    const id = this.confirmDeleteId();
+    if (id === null) return;
+    this.subscriptionService.delete(id).subscribe({
+      next: () => {
+        this.subscriptions.update(subs => subs.filter(s => s.id !== id));
+        this.confirmDeleteId.set(null);
+      },
+      error: (err) => console.error('Error eliminando:', err),
+    });
+  }
+
+  onCancelDelete(): void {
+    this.confirmDeleteId.set(null);
   }
 }

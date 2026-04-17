@@ -12,13 +12,12 @@ import { Subscription, CATEGORIES } from '../../core/models/subscription.model';
   styleUrl: './subscription-detail.component.scss'
 })
 export class SubscriptionDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private subscriptionService = inject(SubscriptionService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly subscriptionService = inject(SubscriptionService);
 
   subscription = signal<Subscription | null>(null);
   isLoading = signal(true);
-  categories = CATEGORIES;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -35,8 +34,8 @@ export class SubscriptionDetailComponent implements OnInit {
     });
   }
 
-  getCategoryLabel(category: string): string {
-    return this.categories.find(c => c.value === category)?.label ?? category;
+  getCategoryLabel(category: string):   string {
+    return CATEGORIES.find(cat => cat.value === category)?.label ?? category;
   }
 
   goBack(): void {

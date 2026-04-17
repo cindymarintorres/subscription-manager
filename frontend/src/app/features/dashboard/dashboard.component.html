@@ -5,6 +5,15 @@
     <app-upcoming-renewals [subscriptions]="subscriptions()" />
   </section>
 
+@if (confirmDeleteId() !== null) {
+    <app-confirm-dialog
+      title="Eliminar suscripcion"
+      message="¿Estás seguro de que quieres eliminar esta suscripción? Esta accion no se puede deshacer."
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()"
+    />
+  }
+
   <!-- Portafolio de suscripciones -->
   <section class="dashboard__portfolio">
     <div class="portfolio-header">

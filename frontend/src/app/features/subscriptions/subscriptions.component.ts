@@ -15,8 +15,8 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
   styleUrl: './subscriptions.component.scss'
 })
 export class SubscriptionsComponent implements OnInit {
-  private subscriptionService = inject(SubscriptionService);
-  private router = inject(Router);
+  private readonly subscriptionService = inject(SubscriptionService);
+  private readonly router = inject(Router);
 
   subscriptions = signal<Subscription[]>([]);
   stats = signal<SubscriptionStats>({ totalMonthly: 0, count: 0, annualProjection: 0 });
@@ -24,7 +24,6 @@ export class SubscriptionsComponent implements OnInit {
   searchQuery = signal('');
   activeFilter = signal<string>('all');
   confirmDeleteId = signal<number | null>(null);
-
   categories = CATEGORIES;
 
   nextRenewal = computed(() => {
@@ -101,6 +100,6 @@ export class SubscriptionsComponent implements OnInit {
   }
 
   getCategoryLabel(category: string): string {
-    return this.categories.find(c => c.value === category)?.label ?? category;
-  }
+    return CATEGORIES.find(cat => cat.value === category)?.label ?? category;
+  } 
 }
